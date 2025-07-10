@@ -10,7 +10,7 @@ import { GetHistoricalPricesDto, GetHistoricalPricesResponseDto } from './dto/ge
 import { MfApiResponseDto } from './dto/mfapi/mfapi-response.dto';
 import { MfApiMutualFundDto } from './dto/mfapi/mfapi-mutual-fund.dto';
 import { MfApiHistoricalResponseDto } from './dto/mfapi/mfapi-historical-response.dto';
-import { MfApiHistoricalDataDto } from './dto/mfapi/mfapi-historical-data.dto';
+import { MfApiHistoricalDataDto } from './dto/mfapi/mfapi-historical-response.dto';
 
 @Injectable()
 export class MutualFundsService {
