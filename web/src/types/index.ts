@@ -42,9 +42,3 @@ export interface HistoricalPricesResponse {
   fundName: string;
   historicalPrices: HistoricalPrice[];
 }
-
-export interface ApiHistoricalPricesResponse {
-  fundId: string;
-  fundName: string;
-  historicalPrices: HistoricalPrice[];
-}

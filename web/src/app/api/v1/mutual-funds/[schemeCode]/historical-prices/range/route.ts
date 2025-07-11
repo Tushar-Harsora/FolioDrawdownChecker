@@ -53,16 +53,9 @@ export async function GET(
       throw new Error(`External API error: ${response.status} ${response.statusText}`);
     }
 
-    const apiData: ApiHistoricalPricesResponse = await response.json();
+    const apiData: HistoricalPricesResponse = await response.json();
 
-    // Transform the external API response to match our internal structure
-    const transformedResponse: HistoricalPricesResponse = {
-      fundId: apiData.fundId || schemeCode,
-      fundName: apiData.fundName || '',
-      historicalPrices: apiData.historicalPrices || []
-    };
-
-    return NextResponse.json(transformedResponse);
+    return NextResponse.json(apiData);
   } catch (error) {
     console.error('Historical prices API error:', error);
     
