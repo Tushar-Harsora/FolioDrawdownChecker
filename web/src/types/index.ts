@@ -31,3 +31,20 @@ export interface SearchResponse {
     totalItems: number;
   };
 }
+
+export interface HistoricalPrice {
+  date: string; // Format: "DD-MM-YYYY"
+  nav: number;
+}
+
+export interface HistoricalPricesResponse {
+  fundId: string;
+  fundName: string;
+  historicalPrices: HistoricalPrice[];
+}
+
+export interface ApiHistoricalPricesResponse {
+  fundId: string;
+  fundName: string;
+  historicalPrices: HistoricalPrice[];
+}

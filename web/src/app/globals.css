@@ -53,6 +53,11 @@
   --risk-high: #ef4444;
   --risk-high-bg: #fef2f2;
   --risk-high-border: #fecaca;
+  
+  /* Tooltip Colors */
+  --tooltip-bg: #ffffff;
+  --tooltip-border: #e5e7eb;
+  --tooltip-text: #111827;
 }
 
 [data-theme="dark"] {
@@ -108,6 +113,11 @@
   --risk-high: #f87171;
   --risk-high-bg: #450a0a;
   --risk-high-border: #7f1d1d;
+  
+  /* Tooltip Colors */
+  --tooltip-bg: #1e293b;
+  --tooltip-border: #475569;
+  --tooltip-text: #f1f5f9;
 }
 
 @theme inline {

@@ -6,6 +6,7 @@ import FundSearch from '@/components/FundSearch';
 import PortfolioManager from '@/components/PortfolioManager';
 import ValidationDisplay from '@/components/ValidationDisplay';
 import ThemeToggle from '@/components/ThemeToggle';
+import HistoricalPriceChart from '@/components/HistoricalPriceChart';
 
 export default function Home() {
   const [portfolioFunds, setPortfolioFunds] = useState<PortfolioFund[]>([]);
@@ -118,10 +119,17 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* Historical Price Chart Section - Full Width */}
+        {portfolioFunds.length > 0 && (
+          <div className="mt-8">
+            <HistoricalPriceChart fund={portfolioFunds[0].fund} />
+          </div>
+        )}
       </div>
 
       {/* Footer */}
-      <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-16">
+      <div className="sticky top-full bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center text-sm text-gray-500 dark:text-gray-400">
             <p>Built with Next.js, React, and Tailwind CSS</p>
