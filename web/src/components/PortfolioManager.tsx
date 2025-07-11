@@ -1,17 +1,22 @@
 'use client';
 
-import { PortfolioFund } from '@/types';
+import { PortfolioFund, InvestmentDetails } from '@/types';
+import InvestmentInput from './InvestmentInput';
 
 interface PortfolioManagerProps {
   portfolioFunds: PortfolioFund[];
   onUpdatePercentage: (schemeCode: number, percentage: number) => void;
   onRemoveFund: (schemeCode: number) => void;
+  investment: InvestmentDetails | null;
+  onInvestmentChange: (investment: InvestmentDetails | null) => void;
 }
 
 export default function PortfolioManager({ 
   portfolioFunds, 
   onUpdatePercentage, 
-  onRemoveFund 
+  onRemoveFund,
+  investment,
+  onInvestmentChange
 }: PortfolioManagerProps) {
   const getRiskLevelColor = (riskLevel: string) => {
     switch (riskLevel) {
@@ -20,6 +25,13 @@ export default function PortfolioManager({
       case 'High': return 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800';
       default: return 'text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700';
     }
+  };
+
+  const totalPercentage = portfolioFunds.reduce((sum, fund) => sum + fund.percentage, 0);
+
+  const calculateFundAmount = (percentage: number) => {
+    if (!investment || investment.amount <= 0) return 0;
+    return (investment.amount * percentage) / 100;
   };
 
   const handlePercentageChange = (schemeCode: number, value: string) => {
@@ -41,7 +53,14 @@ export default function PortfolioManager({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Investment Input Section */}
+      <InvestmentInput
+        investment={investment}
+        onInvestmentChange={onInvestmentChange}
+        totalPercentage={totalPercentage}
+      />
+
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
         Selected Funds ({portfolioFunds.length})
       </h3>
@@ -65,27 +84,39 @@ export default function PortfolioManager({
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <label htmlFor={`percentage-${portfolioFund.fund.schemeCode}`} className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Allocation:
-                    </label>
-                    <div className="relative">
-                      <input
-                        id={`percentage-${portfolioFund.fund.schemeCode}`}
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="0.1"
-                        value={portfolioFund.percentage || ''}
-                        onChange={(e) => handlePercentageChange(portfolioFund.fund.schemeCode, e.target.value)}
-                        className="w-20 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded focus:border-blue-500 dark:focus:border-blue-400 focus:outline-none"
-                        placeholder="0"
-                      />
-                      <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500 dark:text-gray-400 pointer-events-none">
-                        %
-                      </span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2">
+                      <label htmlFor={`percentage-${portfolioFund.fund.schemeCode}`} className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Allocation:
+                      </label>
+                      <div className="relative">
+                        <input
+                          id={`percentage-${portfolioFund.fund.schemeCode}`}
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.1"
+                          value={portfolioFund.percentage || ''}
+                          onChange={(e) => handlePercentageChange(portfolioFund.fund.schemeCode, e.target.value)}
+                          className="w-20 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded focus:border-blue-500 dark:focus:border-blue-400 focus:outline-none"
+                          placeholder="0"
+                        />
+                        <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500 dark:text-gray-400 pointer-events-none">
+                          %
+                        </span>
+                      </div>
                     </div>
+                    
+                    {/* Calculated Amount Display */}
+                    {investment && investment.amount > 0 && portfolioFund.percentage > 0 && (
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Amount:</span>
+                        <span className="text-sm font-semibold text-green-600 dark:text-green-400">
+                          ₹{calculateFundAmount(portfolioFund.percentage).toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   
                   <button

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { MutualFund, HistoricalPricesResponse } from '@/types';
 
 type TimePeriod = '3M' | '1Y' | '3Y' | '5Y' | 'ALL';
@@ -21,16 +21,29 @@ const TIME_PERIOD_OPTIONS: TimePeriodOption[] = [
 ];
 
 interface HistoricalPriceChartProps {
-  fund: MutualFund;
+  funds: MutualFund[];
 }
 
 interface ChartDataPoint {
   date: string;
-  nav: number;
   formattedDate: string;
+  [fundName: string]: string | number; // Dynamic fund data
 }
 
-export default function HistoricalPriceChart({ fund }: HistoricalPriceChartProps) {
+const CHART_COLORS = [
+  '#3B82F6', // Blue
+  '#EF4444', // Red  
+  '#10B981', // Green
+  '#F59E0B', // Yellow
+  '#8B5CF6', // Purple
+  '#F97316', // Orange
+  '#06B6D4', // Cyan
+  '#84CC16', // Lime
+  '#EC4899', // Pink
+  '#6B7280'  // Gray
+];
+
+export default function HistoricalPriceChart({ funds }: HistoricalPriceChartProps) {
   const [data, setData] = useState<ChartDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,7 +83,7 @@ export default function HistoricalPriceChart({ fund }: HistoricalPriceChartProps
 
   useEffect(() => {
     const fetchHistoricalData = async () => {
-      if (!fund) return;
+      if (!funds || funds.length === 0) return;
 
       setLoading(true);
       setError(null);
@@ -78,46 +91,79 @@ export default function HistoricalPriceChart({ fund }: HistoricalPriceChartProps
       try {
         const dateRange = calculateDateRange(selectedPeriod);
         
-        let url = `/api/v1/mutual-funds/${fund.schemeCode}/historical-prices/range`;
+        // Fetch data for all funds in parallel
+        const fetchPromises = funds.map(async (fund) => {
+          let url = `/api/v1/mutual-funds/${fund.schemeCode}/historical-prices/range`;
+          
+          if (dateRange) {
+            url += `?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`;
+          }
+
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch data for ${fund.schemeName}: ${response.status}`);
+          }
+
+          const result: HistoricalPricesResponse = await response.json();
+          return {
+            fund,
+            data: result.historicalPrices || []
+          };
+        });
+
+        const results = await Promise.all(fetchPromises);
         
-        if (dateRange) {
-          url += `?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`;
-        }
-
-        const response = await fetch(url);
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch data: ${response.status}`);
-        }
-
-        const result: HistoricalPricesResponse = await response.json();
-
-        if (!result.historicalPrices || result.historicalPrices.length === 0) {
-          setError('No historical data available for this fund');
+        // Check if any fund has data
+        const hasData = results.some(result => result.data.length > 0);
+        if (!hasData) {
+          setError('No historical data available for any selected funds');
           setData([]);
           return;
         }
 
-        // Transform data for chart
-        const chartData: ChartDataPoint[] = result.historicalPrices
-          .map(price => {
-            // Convert DD-MM-YYYY to Date object for sorting
-            const [day, month, year] = price.date.split('-');
-            const dateObj = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        // Create a map of all unique dates
+        const allDates = new Set<string>();
+        results.forEach(result => {
+          result.data.forEach(price => allDates.add(price.date));
+        });
+
+        // Convert to sorted array
+        const sortedDates = Array.from(allDates).sort((a, b) => {
+          const [dayA, monthA, yearA] = a.split('-');
+          const [dayB, monthB, yearB] = b.split('-');
+          const dateA = new Date(parseInt(yearA), parseInt(monthA) - 1, parseInt(dayA));
+          const dateB = new Date(parseInt(yearB), parseInt(monthB) - 1, parseInt(dayB));
+          return dateA.getTime() - dateB.getTime();
+        });
+
+        // Transform data for chart - combine all funds
+        const chartData: ChartDataPoint[] = sortedDates.map(date => {
+          const [day, month, year] = date.split('-');
+          const dateObj = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+          
+          const dataPoint: ChartDataPoint = {
+            date,
+            formattedDate: dateObj.toLocaleDateString('en-US', { 
+              month: 'short', 
+              day: 'numeric',
+              year: 'numeric'
+            })
+          };
+
+          // Add NAV data for each fund
+          results.forEach(result => {
+            const fundData = result.data.find(price => price.date === date);
+            const fundKey = result.fund.schemeName.length > 30 
+              ? result.fund.schemeName.substring(0, 30) + '...' 
+              : result.fund.schemeName;
             
-            return {
-              date: price.date,
-              nav: price.nav,
-              formattedDate: dateObj.toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric',
-                year: 'numeric'
-              }),
-              sortDate: dateObj.getTime()
-            };
-          })
-          .sort((a, b) => (a as any).sortDate - (b as any).sortDate) // Sort by date ascending
-          .map(({ sortDate, ...rest }) => rest); // Remove sortDate from final data
+            if (fundData) {
+              dataPoint[fundKey] = fundData.nav;
+            }
+          });
+
+          return dataPoint;
+        });
 
         setData(chartData);
       } catch (err) {
@@ -130,7 +176,7 @@ export default function HistoricalPriceChart({ fund }: HistoricalPriceChartProps
     };
 
     fetchHistoricalData();
-  }, [fund, selectedPeriod]);
+  }, [funds, selectedPeriod]);
 
   if (loading) {
     return (
@@ -188,7 +234,7 @@ export default function HistoricalPriceChart({ fund }: HistoricalPriceChartProps
               Historical Performance
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              {fund.schemeName} - {getSelectedPeriodDescription()}
+              Portfolio Comparison - {getSelectedPeriodDescription()}
             </p>
           </div>
           <div className="flex-shrink-0">
@@ -240,17 +286,34 @@ export default function HistoricalPriceChart({ fund }: HistoricalPriceChartProps
                 borderRadius: '6px',
                 color: 'var(--tooltip-text)'
               }}
-              formatter={(value: number) => [`₹${value.toFixed(2)}`, 'NAV']}
+              formatter={(value: number, name: string) => [`₹${value.toFixed(2)}`, name]}
               labelFormatter={(label: string) => `Date: ${label}`}
             />
-            <Line
-              type="monotone"
-              dataKey="nav"
-              stroke="#3B82F6"
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 4, fill: '#3B82F6' }}
+            <Legend 
+              wrapperStyle={{ 
+                paddingTop: '20px',
+                fontSize: '12px'
+              }}
             />
+            {funds.map((fund, index) => {
+              const fundKey = fund.schemeName.length > 30 
+                ? fund.schemeName.substring(0, 30) + '...' 
+                : fund.schemeName;
+              const color = CHART_COLORS[index % CHART_COLORS.length];
+              
+              return (
+                <Line
+                  key={fund.schemeCode}
+                  type="monotone"
+                  dataKey={fundKey}
+                  stroke={color}
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 4, fill: color }}
+                  connectNulls={false}
+                />
+              );
+            })}
           </LineChart>
         </ResponsiveContainer>
       </div>

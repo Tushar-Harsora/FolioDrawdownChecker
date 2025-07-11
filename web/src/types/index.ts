@@ -3,9 +3,18 @@ export interface MutualFund {
   schemeName: string;
 }
 
+export type InvestmentMode = 'Lumpsum' | 'SIP';
+
+export interface InvestmentDetails {
+  mode: InvestmentMode;
+  amount: number;
+  date: string; // For lumpsum: investment date, For SIP: start date
+}
+
 export interface PortfolioFund {
   fund: MutualFund;
   percentage: number;
+  investment?: InvestmentDetails; // Optional for backward compatibility
 }
 
 export interface Portfolio {

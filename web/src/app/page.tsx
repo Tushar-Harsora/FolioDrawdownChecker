@@ -1,6 +1,7 @@
 'use client';
 
-import { MutualFund, PortfolioFund } from '@/types';
+import { MutualFund, PortfolioFund, InvestmentDetails } from '@/types';
+import { useState } from 'react';
 import FundSearch from '@/components/FundSearch';
 import PortfolioManager from '@/components/PortfolioManager';
 import ValidationDisplay from '@/components/ValidationDisplay';
@@ -10,6 +11,7 @@ import { usePersistedPortfolio } from '@/hooks/usePersistedPortfolio';
 
 export default function Home() {
   const { portfolioFunds, setPortfolioFunds, isLoaded } = usePersistedPortfolio();
+  const [investment, setInvestment] = useState<InvestmentDetails | null>(null);
 
   const handleFundSelect = (fund: MutualFund) => {
     // Check if fund is already in portfolio
@@ -102,6 +104,8 @@ export default function Home() {
                 portfolioFunds={portfolioFunds}
                 onUpdatePercentage={handleUpdatePercentage}
                 onRemoveFund={handleRemoveFund}
+                investment={investment}
+                onInvestmentChange={setInvestment}
               />
             </div>
           </div>
@@ -115,6 +119,7 @@ export default function Home() {
               <ValidationDisplay
                 portfolioFunds={portfolioFunds}
                 onSubmit={handleSubmit}
+                investment={investment}
               />
             </div>
           </div>
@@ -123,7 +128,7 @@ export default function Home() {
         {/* Historical Price Chart Section - Full Width */}
         {portfolioFunds.length > 0 && (
           <div className="mt-8">
-            <HistoricalPriceChart fund={portfolioFunds[0].fund} />
+            <HistoricalPriceChart funds={portfolioFunds.map(pf => pf.fund)} />
           </div>
         )}
       </div>

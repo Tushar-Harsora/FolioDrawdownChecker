@@ -1,17 +1,24 @@
 'use client';
 
-import { PortfolioFund } from '@/types';
+import { PortfolioFund, InvestmentDetails } from '@/types';
 
 interface ValidationDisplayProps {
   portfolioFunds: PortfolioFund[];
   onSubmit: () => void;
+  investment?: InvestmentDetails | null;
 }
 
-export default function ValidationDisplay({ portfolioFunds, onSubmit }: ValidationDisplayProps) {
+export default function ValidationDisplay({ portfolioFunds, onSubmit, investment }: ValidationDisplayProps) {
   const totalPercentage = portfolioFunds.reduce((sum, fund) => sum + fund.percentage, 0);
   const isValid = Math.abs(totalPercentage - 100) < 0.01; // Allow for floating point precision
   const hasAnyFunds = portfolioFunds.length > 0;
   const hasAllPercentages = portfolioFunds.every(fund => fund.percentage > 0);
+  const hasInvestmentDetails = investment && investment.amount > 0 && investment.date;
+
+  const calculateFundAmount = (percentage: number) => {
+    if (!investment || investment.amount <= 0) return 0;
+    return (investment.amount * percentage) / 100;
+  };
 
   const getValidationMessage = () => {
     if (!hasAnyFunds) {
@@ -116,6 +123,37 @@ export default function ValidationDisplay({ portfolioFunds, onSubmit }: Validati
         </div>
       </div>
 
+      {/* Investment Summary */}
+      {hasInvestmentDetails && (
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+          <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-4">Investment Summary</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div className="text-center">
+              <div className="text-sm text-gray-600 dark:text-gray-400">Investment Mode</div>
+              <div className="text-lg font-semibold text-blue-600 dark:text-blue-400">
+                {investment.mode}
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                {investment.mode === 'Lumpsum' ? 'Total Amount' : 'Monthly Amount'}
+              </div>
+              <div className="text-lg font-semibold text-green-600 dark:text-green-400">
+                ₹{investment.amount.toLocaleString('en-IN')}
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                {investment.mode === 'Lumpsum' ? 'Investment Date' : 'SIP Start Date'}
+              </div>
+              <div className="text-lg font-semibold text-gray-900 dark:text-white">
+                {new Date(investment.date).toLocaleDateString('en-IN')}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Fund Breakdown */}
       {hasAnyFunds && (
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
@@ -131,16 +169,30 @@ export default function ValidationDisplay({ portfolioFunds, onSubmit }: Validati
                     Scheme Code: {fund.fund.schemeCode}
                   </div>
                 </div>
-                <div className="text-sm font-semibold text-gray-900 dark:text-white ml-4">
-                  {fund.percentage.toFixed(1)}%
+                <div className="flex items-center space-x-4">
+                  <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                    {fund.percentage.toFixed(1)}%
+                  </div>
+                  {hasInvestmentDetails && fund.percentage > 0 && (
+                    <div className="text-sm font-semibold text-green-600 dark:text-green-400">
+                      ₹{calculateFundAmount(fund.percentage).toLocaleString('en-IN')}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
             <div className="border-t border-gray-200 dark:border-gray-600 pt-2 mt-4">
               <div className="flex justify-between items-center">
                 <div className="text-sm font-semibold text-gray-900 dark:text-white">Total</div>
-                <div className={`text-sm font-bold ${isValid ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                  {totalPercentage.toFixed(1)}%
+                <div className="flex items-center space-x-4">
+                  <div className={`text-sm font-bold ${isValid ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    {totalPercentage.toFixed(1)}%
+                  </div>
+                  {hasInvestmentDetails && isValid && (
+                    <div className="text-sm font-bold text-green-600 dark:text-green-400">
+                      ₹{investment.amount.toLocaleString('en-IN')}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
