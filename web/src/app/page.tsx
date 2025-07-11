@@ -1,15 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import { MutualFund, PortfolioFund } from '@/types';
 import FundSearch from '@/components/FundSearch';
 import PortfolioManager from '@/components/PortfolioManager';
 import ValidationDisplay from '@/components/ValidationDisplay';
 import ThemeToggle from '@/components/ThemeToggle';
 import HistoricalPriceChart from '@/components/HistoricalPriceChart';
+import { usePersistedPortfolio } from '@/hooks/usePersistedPortfolio';
 
 export default function Home() {
-  const [portfolioFunds, setPortfolioFunds] = useState<PortfolioFund[]>([]);
+  const { portfolioFunds, setPortfolioFunds, isLoaded } = usePersistedPortfolio();
 
   const handleFundSelect = (fund: MutualFund) => {
     // Check if fund is already in portfolio
