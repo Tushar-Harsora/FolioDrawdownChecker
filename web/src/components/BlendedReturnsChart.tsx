@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { PortfolioFund, HistoricalPricesResponse } from '@/types';
 import {
@@ -15,6 +15,8 @@ import {
 
 interface BlendedReturnsChartProps {
   portfolioFunds: PortfolioFund[];
+  selectedPeriod: TimePeriod;
+  setSelectedPeriod: Dispatch<SetStateAction<TimePeriod>>;
 }
 
 interface BlendedChartDataPoint {
@@ -26,11 +28,10 @@ interface BlendedChartDataPoint {
   returnsPercentage: number;
 }
 
-export default function BlendedReturnsChart({ portfolioFunds }: BlendedReturnsChartProps) {
+export default function BlendedReturnsChart({ portfolioFunds, selectedPeriod, setSelectedPeriod }: BlendedReturnsChartProps) {
   const [data, setData] = useState<BlendedChartDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>('1Y');
 
   const calculateBlendedReturns = (fundDataResults: Array<{ fund: PortfolioFund; data: any[] }>) => {
     // Get all unique dates and sort them

@@ -9,10 +9,12 @@ import ThemeToggle from '@/components/ThemeToggle';
 import HistoricalPriceChart from '@/components/HistoricalPriceChart';
 import BlendedReturnsChart from '@/components/BlendedReturnsChart';
 import { usePersistedPortfolio } from '@/hooks/usePersistedPortfolio';
+import { TimePeriod } from '@/utils/chartUtils';
 
 export default function Home() {
   const { portfolioFunds, setPortfolioFunds, isLoaded } = usePersistedPortfolio();
   const [investment, setInvestment] = useState<InvestmentDetails | null>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>('1Y');
 
   const handleFundSelect = (fund: MutualFund) => {
     // Check if fund is already in portfolio
@@ -130,10 +132,10 @@ export default function Home() {
         {portfolioFunds.length > 0 && (
           <div className="mt-8 space-y-8">
             {/* Blended Returns Chart */}
-            <BlendedReturnsChart portfolioFunds={portfolioFunds} />
+            <BlendedReturnsChart portfolioFunds={portfolioFunds} selectedPeriod={selectedPeriod} setSelectedPeriod={setSelectedPeriod} />
 
             {/* Historical NAV Chart */}
-            <HistoricalPriceChart funds={portfolioFunds.map(pf => pf.fund)} />
+            <HistoricalPriceChart funds={portfolioFunds.map(pf => pf.fund)} selectedPeriod={selectedPeriod} setSelectedPeriod={setSelectedPeriod} />
           </div>
         )}
       </div>

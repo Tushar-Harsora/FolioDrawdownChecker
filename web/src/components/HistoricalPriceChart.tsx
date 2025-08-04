@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { MutualFund, HistoricalPricesResponse } from '@/types';
 import {
@@ -30,6 +30,8 @@ import {
 
 interface HistoricalPriceChartProps {
   funds: MutualFund[];
+  selectedPeriod: TimePeriod;
+  setSelectedPeriod: Dispatch<SetStateAction<TimePeriod>>;
 }
 
 interface ChartDataPoint {
@@ -38,11 +40,10 @@ interface ChartDataPoint {
   [fundName: string]: string | number; // Dynamic fund data
 }
 
-export default function HistoricalPriceChart({ funds }: HistoricalPriceChartProps) {
+export default function HistoricalPriceChart({ funds, selectedPeriod, setSelectedPeriod }: HistoricalPriceChartProps) {
   const [data, setData] = useState<ChartDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>('1Y');
 
   useEffect(() => {
     const fetchHistoricalData = async () => {
