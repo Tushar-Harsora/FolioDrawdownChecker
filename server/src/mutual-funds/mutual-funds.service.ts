@@ -119,27 +119,9 @@ export class MutualFundsService {
 
     for (const fund of funds) {
       const schemeName = fund.schemeName.toLowerCase();
-      let score = 0;
 
-      // Exact match (case-insensitive)
-      if (schemeName === queryLower) {
-        score = 100;
-      }
-      // Starts with query
-      else if (schemeName.startsWith(queryLower)) {
-        score = 80;
-      }
-      // Contains query
-      else if (schemeName.includes(queryLower)) {
-        score = 60;
-      }
       // Fuzzy similarity (simple word matching)
-      else {
-        const similarity = this.calculateSimilarity(schemeName, queryLower);
-        if (similarity > 0.3) { // Only include if similarity is above threshold
-          score = Math.floor(similarity * 50); // Scale to 0-50
-        }
-      }
+      const score = this.calculateSimilarity(schemeName, queryLower);
 
       if (score > 0) {
         results.push({ fund, score });
@@ -151,20 +133,23 @@ export class MutualFundsService {
   }
 
   private calculateSimilarity(text: string, query: string): number {
-    const textWords = text.split(/\s+/);
-    const queryWords = query.split(/\s+/);
+    const textWords = text.split(/\s+/).filter((word) => !(/^\s+$/.test(word)));
+    const queryWords = query.split(/\s+/).filter((word) => !(/^\s+$/.test(word)));
     let matchCount = 0;
 
     for (const queryWord of queryWords) {
       for (const textWord of textWords) {
-        if (textWord.includes(queryWord) || queryWord.includes(textWord)) {
+        if(queryWord[0] === '!' && textWord === queryWord.substring(1)) {
+          return -1;
+        }
+        if(textWord === queryWord) {
           matchCount++;
           break;
         }
       }
     }
 
-    return matchCount / queryWords.length;
+    return matchCount;
   }
 
   getHistoricalPrices(fundId: string): Observable<GetHistoricalPricesResponseDto> {
