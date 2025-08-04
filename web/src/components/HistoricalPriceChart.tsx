@@ -68,6 +68,46 @@ export default function HistoricalPriceChart({ funds, selectedPeriod, setSelecte
         const allDates = getAllUniqueDates(results);
         const sortedDates = sortDateStrings(allDates);
 
+        // Check if we need to normalize data for multiple funds
+        const isMultipleFunds = funds.length > 1;
+
+        // Store initial NAV values for normalization (if multiple funds)
+        const initialNAVs: Record<string, number> = {};
+
+        if (isMultipleFunds) {
+          // Find the first date where ALL funds have data (common starting point)
+          let commonStartDate: string | null = null;
+          for (const date of sortedDates) {
+            const allFundsHaveData = results.every(result =>
+              result.data.some(price => price.date === date && price.nav > 0)
+            );
+            if (allFundsHaveData) {
+              commonStartDate = date;
+              break;
+            }
+          }
+
+          // Use the common starting date's NAV as baseline for all funds
+          if (commonStartDate) {
+            results.forEach(result => {
+              const fundKey = truncateFundName(result.fund.schemeName);
+              const baselineData = result.data.find(price => price.date === commonStartDate);
+              if (baselineData) {
+                initialNAVs[fundKey] = baselineData.nav;
+              }
+            });
+          } else {
+            // Fallback: if no common date found, use each fund's first available data
+            results.forEach(result => {
+              const fundKey = truncateFundName(result.fund.schemeName);
+              const firstValidData = result.data.find(price => price.nav > 0);
+              if (firstValidData) {
+                initialNAVs[fundKey] = firstValidData.nav;
+              }
+            });
+          }
+        }
+
         // Transform data for chart - combine all funds
         const chartData: ChartDataPoint[] = sortedDates.map(date => {
           const dataPoint: ChartDataPoint = {
@@ -81,7 +121,13 @@ export default function HistoricalPriceChart({ funds, selectedPeriod, setSelecte
             const fundKey = truncateFundName(result.fund.schemeName);
 
             if (fundData) {
-              dataPoint[fundKey] = fundData.nav;
+              if (isMultipleFunds && initialNAVs[fundKey]) {
+                // Normalize to start at 100 for multiple funds comparison
+                dataPoint[fundKey] = Math.round((100 * (fundData.nav / initialNAVs[fundKey])) * 100) / 100;
+              } else {
+                // Single fund or fallback: use actual NAV
+                dataPoint[fundKey] = fundData.nav;
+              }
             }
           });
 
@@ -191,7 +237,13 @@ export default function HistoricalPriceChart({ funds, selectedPeriod, setSelecte
         </ResponsiveContainer>
       </div>
 
-      <ChartFooter message="Data shows Net Asset Value (NAV) over the selected period" />
+      <ChartFooter
+        message={
+          funds.length > 1
+            ? "Data shows normalized performance starting at ₹100 for comparison"
+            : "Data shows Net Asset Value (NAV) over the selected period"
+        }
+      />
     </ChartContainer>
   );
 }
