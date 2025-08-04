@@ -7,6 +7,7 @@ import PortfolioManager from '@/components/PortfolioManager';
 import ValidationDisplay from '@/components/ValidationDisplay';
 import ThemeToggle from '@/components/ThemeToggle';
 import HistoricalPriceChart from '@/components/HistoricalPriceChart';
+import BlendedReturnsChart from '@/components/BlendedReturnsChart';
 import { usePersistedPortfolio } from '@/hooks/usePersistedPortfolio';
 
 export default function Home() {
@@ -125,9 +126,13 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Historical Price Chart Section - Full Width */}
+        {/* Charts Section - Full Width */}
         {portfolioFunds.length > 0 && (
-          <div className="mt-8">
+          <div className="mt-8 space-y-8">
+            {/* Blended Returns Chart */}
+            <BlendedReturnsChart portfolioFunds={portfolioFunds} />
+
+            {/* Historical NAV Chart */}
             <HistoricalPriceChart funds={portfolioFunds.map(pf => pf.fund)} />
           </div>
         )}

@@ -231,7 +231,7 @@ export default function HistoricalPriceChart({ funds }: HistoricalPriceChartProp
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-              Historical Performance
+              Historical NAV Chart
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Portfolio Comparison - {getSelectedPeriodDescription()}
