@@ -10,6 +10,11 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  {
+    rules: {
+      "no-trailing-spaces": "error",
+    }
+  },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
 ];
 

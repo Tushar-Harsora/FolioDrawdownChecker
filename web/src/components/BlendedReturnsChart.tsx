@@ -3,22 +3,15 @@
 import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { PortfolioFund, HistoricalPricesResponse } from '@/types';
-
-type TimePeriod = '3M' | '1Y' | '3Y' | '5Y' | 'ALL';
-
-interface TimePeriodOption {
-  value: TimePeriod;
-  label: string;
-  description: string;
-}
-
-const TIME_PERIOD_OPTIONS: TimePeriodOption[] = [
-  { value: '3M', label: '3M', description: 'Last 3 Months' },
-  { value: '1Y', label: '1Y', description: 'Last 1 Year' },
-  { value: '3Y', label: '3Y', description: 'Last 3 Years' },
-  { value: '5Y', label: '5Y', description: 'Last 5 Years' },
-  { value: 'ALL', label: 'All', description: 'All Time' },
-];
+import {
+  TimePeriod,
+  calculateDateRange,
+  getSelectedPeriodDescription,
+  getAllUniqueDates,
+  sortDateStrings,
+  formatDateForDisplay,
+  TIME_PERIOD_OPTIONS
+} from '@/utils/chartUtils';
 
 interface BlendedReturnsChartProps {
   portfolioFunds: PortfolioFund[];
@@ -39,53 +32,10 @@ export default function BlendedReturnsChart({ portfolioFunds }: BlendedReturnsCh
   const [error, setError] = useState<string | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>('1Y');
 
-  const calculateDateRange = (period: TimePeriod) => {
-    const endDate = new Date();
-    const startDate = new Date();
-
-    switch (period) {
-      case '3M':
-        startDate.setMonth(endDate.getMonth() - 3);
-        break;
-      case '1Y':
-        startDate.setFullYear(endDate.getFullYear() - 1);
-        break;
-      case '3Y':
-        startDate.setFullYear(endDate.getFullYear() - 3);
-        break;
-      case '5Y':
-        startDate.setFullYear(endDate.getFullYear() - 5);
-        break;
-      case 'ALL':
-        startDate.setFullYear(1970); // No date range for all time
-    }
-
-    return {
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0]
-    };
-  };
-
-  const getSelectedPeriodDescription = () => {
-    const option = TIME_PERIOD_OPTIONS.find(opt => opt.value === selectedPeriod);
-    return option?.description || 'Last 1 Year';
-  };
-
   const calculateBlendedReturns = (fundDataResults: Array<{ fund: PortfolioFund; data: any[] }>) => {
-    // Get all unique dates
-    const allDates = new Set<string>();
-    fundDataResults.forEach(result => {
-      result.data.forEach(price => allDates.add(price.date));
-    });
-
-    // Convert to sorted array
-    const sortedDates = Array.from(allDates).sort((a, b) => {
-      const [dayA, monthA, yearA] = a.split('-');
-      const [dayB, monthB, yearB] = b.split('-');
-      const dateA = new Date(parseInt(yearA), parseInt(monthA) - 1, parseInt(dayA));
-      const dateB = new Date(parseInt(yearB), parseInt(monthB) - 1, parseInt(dayB));
-      return dateA.getTime() - dateB.getTime();
-    });
+    // Get all unique dates and sort them
+    const allDates = getAllUniqueDates(fundDataResults);
+    const sortedDates = sortDateStrings(allDates);
 
     // Calculate total allocation percentage
     const totalAllocation = portfolioFunds.reduce((sum, fund) => sum + fund.percentage, 0);
@@ -136,11 +86,7 @@ export default function BlendedReturnsChart({ portfolioFunds }: BlendedReturnsCh
 
         blendedData.push({
           date,
-          formattedDate: dateObj.toLocaleDateString('en-US', { 
-            month: 'short', 
-            day: 'numeric',
-            year: 'numeric'
-          }),
+          formattedDate: formatDateForDisplay(date),
           investmentValue: Math.round(investmentValue * 100) / 100,
           blendedNAV: Math.round(blendedNAV * 100) / 100,
           returns: Math.round(returns * 100) / 100,
@@ -291,7 +237,7 @@ export default function BlendedReturnsChart({ portfolioFunds }: BlendedReturnsCh
               Blended Returns Chart
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Growth of ₹1,000 investment - {getSelectedPeriodDescription()}
+              Growth of ₹1,000 investment - {getSelectedPeriodDescription(selectedPeriod)}
             </p>
             <div className="mt-2 flex items-center space-x-4">
               <div className="text-sm">
