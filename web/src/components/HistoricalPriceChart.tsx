@@ -3,20 +3,20 @@
 import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { MutualFund, HistoricalPricesResponse } from '@/types';
-import { 
-  TimePeriod, 
-  calculateDateRange, 
-  getSelectedPeriodDescription, 
+import {
+  TimePeriod,
+  calculateDateRange,
+  getSelectedPeriodDescription,
   fetchFundHistoricalData,
   getAllUniqueDates,
   sortDateStrings,
   formatDateForDisplay,
   truncateFundName,
 } from '@/utils/chartUtils';
-import { 
-  ChartLoadingState, 
-  ChartErrorState, 
-  ChartEmptyState, 
+import {
+  ChartLoadingState,
+  ChartErrorState,
+  ChartEmptyState,
   TimePeriodSelector,
   ChartContainer,
   ChartHeader,
@@ -54,7 +54,7 @@ export default function HistoricalPriceChart({ funds }: HistoricalPriceChartProp
       try {
         const dateRange = calculateDateRange(selectedPeriod);
         const results = await fetchFundHistoricalData(funds, dateRange);
-        
+
         // Check if any fund has data
         const hasData = results.some(result => result.data.length > 0);
         if (!hasData) {
@@ -78,7 +78,7 @@ export default function HistoricalPriceChart({ funds }: HistoricalPriceChartProp
           results.forEach(result => {
             const fundData = result.data.find(price => price.date === date);
             const fundKey = truncateFundName(result.fund.schemeName);
-            
+
             if (fundData) {
               dataPoint[fundKey] = fundData.nav;
             }
@@ -114,17 +114,17 @@ export default function HistoricalPriceChart({ funds }: HistoricalPriceChartProp
 
   return (
     <ChartContainer>
-      <ChartHeader 
+      <ChartHeader
         title="Historical NAV Chart"
         subtitle={`Portfolio Comparison - ${getSelectedPeriodDescription(selectedPeriod)}`}
       >
-        <TimePeriodSelector 
+        <TimePeriodSelector
           selectedPeriod={selectedPeriod}
           onPeriodChange={setSelectedPeriod}
           focusColor={CHART_FOCUS_COLORS.blue}
         />
       </ChartHeader>
-      
+
       <div className="h-96">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
@@ -136,17 +136,17 @@ export default function HistoricalPriceChart({ funds }: HistoricalPriceChartProp
               bottom: 5,
             }}
           >
-            <CartesianGrid 
-              strokeDasharray="3 3" 
-              className="stroke-gray-200 dark:stroke-gray-600" 
+            <CartesianGrid
+              strokeDasharray="3 3"
+              className="stroke-gray-200 dark:stroke-gray-600"
             />
-            <XAxis 
+            <XAxis
               dataKey="formattedDate"
               className="text-gray-600 dark:text-gray-400"
               tick={{ fontSize: 12 }}
               interval="preserveStartEnd"
             />
-            <YAxis 
+            <YAxis
               className="text-gray-600 dark:text-gray-400"
               tick={{ fontSize: 12 }}
               domain={['dataMin - 1', 'dataMax + 1']}
@@ -161,18 +161,18 @@ export default function HistoricalPriceChart({ funds }: HistoricalPriceChartProp
               formatter={(value: number, name: string) => [`₹${value.toFixed(2)}`, name]}
               labelFormatter={(label: string) => `Date: ${label}`}
             />
-            <Legend 
-              wrapperStyle={{ 
+            <Legend
+              wrapperStyle={{
                 paddingTop: '20px',
                 fontSize: '12px'
               }}
             />
             {funds.map((fund, index) => {
-              const fundKey = fund.schemeName.length > 30 
-                ? fund.schemeName.substring(0, 30) + '...' 
+              const fundKey = fund.schemeName.length > 30
+                ? fund.schemeName.substring(0, 30) + '...'
                 : fund.schemeName;
               const color = CHART_COLORS[index % CHART_COLORS.length];
-              
+
               return (
                 <Line
                   key={fund.schemeCode}
@@ -189,7 +189,7 @@ export default function HistoricalPriceChart({ funds }: HistoricalPriceChartProp
           </LineChart>
         </ResponsiveContainer>
       </div>
-      
+
       <ChartFooter message="Data shows Net Asset Value (NAV) over the selected period" />
     </ChartContainer>
   );

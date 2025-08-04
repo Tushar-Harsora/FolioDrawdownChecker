@@ -8,8 +8,8 @@ export async function GET(request: NextRequest) {
     const page = searchParams.get('page') || '1';
 
     if (!query || query.length < 3) {
-      return NextResponse.json({ 
-        funds: [], 
+      return NextResponse.json({
+        funds: [],
         total: 0,
         pagination: {
           currentPage: 1,
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
 
     // Make real API call to external mutual funds service
     const apiUrl = `http://localhost:3000/api/v1/mutual-funds/search?q=${encodeURIComponent(query)}&page=${page}`;
-    
+
     const response = await fetch(apiUrl, {
       method: 'GET',
       headers: {
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(transformedResponse);
   } catch (error) {
     console.error('Search API error:', error);
-    
+
     // Return appropriate error response
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
           { status: 408 }
         );
       }
-      
+
       return NextResponse.json(
         { error: 'Failed to fetch mutual funds data' },
         { status: 502 }

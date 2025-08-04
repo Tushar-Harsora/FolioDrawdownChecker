@@ -39,7 +39,7 @@ export default function BlendedReturnsChart({ portfolioFunds }: BlendedReturnsCh
 
     // Calculate total allocation percentage
     const totalAllocation = portfolioFunds.reduce((sum, fund) => sum + fund.percentage, 0);
-    
+
     if (totalAllocation === 0) {
       return [];
     }
@@ -51,7 +51,7 @@ export default function BlendedReturnsChart({ portfolioFunds }: BlendedReturnsCh
     for (const date of sortedDates) {
       const [day, month, year] = date.split('-');
       const dateObj = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-      
+
       let blendedNAV = 0;
       let availableFunds = 0;
       let totalWeightForAvailableFunds = 0;
@@ -119,11 +119,11 @@ export default function BlendedReturnsChart({ portfolioFunds }: BlendedReturnsCh
 
       try {
         const dateRange = calculateDateRange(selectedPeriod);
-        
+
         // Fetch data for all funds in parallel
         const fetchPromises = portfolioFunds.map(async (portfolioFund) => {
           let url = `/api/v1/mutual-funds/${portfolioFund.fund.schemeCode}/historical-prices/range`;
-          
+
           if (dateRange) {
             url += `?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`;
           }
@@ -141,7 +141,7 @@ export default function BlendedReturnsChart({ portfolioFunds }: BlendedReturnsCh
         });
 
         const results = await Promise.all(fetchPromises);
-        
+
         // Check if any fund has data
         const hasData = results.some(result => result.data.length > 0);
         if (!hasData) {
@@ -152,7 +152,7 @@ export default function BlendedReturnsChart({ portfolioFunds }: BlendedReturnsCh
 
         // Calculate blended returns
         const blendedData = calculateBlendedReturns(results);
-        
+
         if (blendedData.length === 0) {
           setError('Unable to calculate blended returns with current allocation');
           setData([]);
@@ -269,7 +269,7 @@ export default function BlendedReturnsChart({ portfolioFunds }: BlendedReturnsCh
           </div>
         </div>
       </div>
-      
+
       <div className="h-96">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
@@ -281,17 +281,17 @@ export default function BlendedReturnsChart({ portfolioFunds }: BlendedReturnsCh
               bottom: 5,
             }}
           >
-            <CartesianGrid 
-              strokeDasharray="3 3" 
-              className="stroke-gray-200 dark:stroke-gray-600" 
+            <CartesianGrid
+              strokeDasharray="3 3"
+              className="stroke-gray-200 dark:stroke-gray-600"
             />
-            <XAxis 
+            <XAxis
               dataKey="formattedDate"
               className="text-gray-600 dark:text-gray-400"
               tick={{ fontSize: 12 }}
               interval="preserveStartEnd"
             />
-            <YAxis 
+            <YAxis
               className="text-gray-600 dark:text-gray-400"
               tick={{ fontSize: 12 }}
               domain={['dataMin - 50', 'dataMax + 50']}
@@ -324,7 +324,7 @@ export default function BlendedReturnsChart({ portfolioFunds }: BlendedReturnsCh
           </LineChart>
         </ResponsiveContainer>
       </div>
-      
+
       <div className="mt-4 text-xs text-gray-500 dark:text-gray-400 text-center">
         Simulated returns based on portfolio allocation and historical NAV data
       </div>

@@ -24,27 +24,27 @@ export default function ValidationDisplay({ portfolioFunds, onSubmit, investment
     if (!hasAnyFunds) {
       return { message: 'Add funds to your portfolio to get started', type: 'info' };
     }
-    
+
     if (!hasAllPercentages) {
       return { message: 'Please set allocation percentages for all funds', type: 'warning' };
     }
-    
+
     if (totalPercentage < 100) {
       const remaining = 100 - totalPercentage;
-      return { 
-        message: `Portfolio is ${remaining.toFixed(1)}% under-allocated`, 
-        type: 'warning' 
+      return {
+        message: `Portfolio is ${remaining.toFixed(1)}% under-allocated`,
+        type: 'warning'
       };
     }
-    
+
     if (totalPercentage > 100) {
       const excess = totalPercentage - 100;
-      return { 
-        message: `Portfolio is ${excess.toFixed(1)}% over-allocated`, 
-        type: 'error' 
+      return {
+        message: `Portfolio is ${excess.toFixed(1)}% over-allocated`,
+        type: 'error'
       };
     }
-    
+
     return { message: 'Portfolio allocation is perfect!', type: 'success' };
   };
 
@@ -77,14 +77,14 @@ export default function ValidationDisplay({ portfolioFunds, onSubmit, investment
             {totalPercentage.toFixed(1)}%
           </div>
         </div>
-        
+
         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 mb-4">
           <div
             className={`h-4 rounded-full transition-all duration-300 ${getProgressBarColor()}`}
             style={{ width: `${Math.min(totalPercentage, 100)}%` }}
           ></div>
         </div>
-        
+
         <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
           <span>0%</span>
           <span className="font-medium">Target: 100%</span>

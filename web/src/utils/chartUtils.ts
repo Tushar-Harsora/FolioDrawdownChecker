@@ -61,8 +61,8 @@ export const sortDateStrings = (dates: string[]) => {
 export const formatDateForDisplay = (dateString: string) => {
   const [day, month, year] = dateString.split('-');
   const dateObj = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-  return dateObj.toLocaleDateString('en-US', { 
-    month: 'short', 
+  return dateObj.toLocaleDateString('en-US', {
+    month: 'short',
     day: 'numeric',
     year: 'numeric'
   });
@@ -75,11 +75,11 @@ export const parseDateString = (dateString: string): Date => {
 
 export const buildHistoricalPricesUrl = (schemeCode: number, dateRange?: { startDate: string; endDate: string }) => {
   let url = `/api/v1/mutual-funds/${schemeCode}/historical-prices/range`;
-  
+
   if (dateRange) {
     url += `?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`;
   }
-  
+
   return url;
 };
 
@@ -136,7 +136,7 @@ export const getAllUniqueDates = (results: Array<{ data: any[] }>) => {
 };
 
 export const truncateFundName = (fundName: string, maxLength: number = 30) => {
-  return fundName.length > maxLength 
-    ? fundName.substring(0, maxLength) + '...' 
+  return fundName.length > maxLength
+    ? fundName.substring(0, maxLength) + '...'
     : fundName;
 };

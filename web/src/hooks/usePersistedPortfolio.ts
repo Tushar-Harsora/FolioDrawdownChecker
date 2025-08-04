@@ -31,7 +31,7 @@ export function usePersistedPortfolio() {
   // Save portfolio to localStorage whenever it changes
   useEffect(() => {
     if (!isLoaded) return; // Don't save during initial load
-    
+
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(portfolioFunds));
     } catch (error) {

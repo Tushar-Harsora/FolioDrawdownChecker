@@ -93,7 +93,7 @@ export default function Home() {
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                 Search Mutual Funds
               </h2>
-              <FundSearch 
+              <FundSearch
                 onFundSelect={handleFundSelect}
                 selectedFunds={selectedFunds}
               />

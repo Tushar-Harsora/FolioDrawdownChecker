@@ -6,9 +6,9 @@ interface ChartLoadingStateProps {
   spinnerColor?: string;
 }
 
-export const ChartLoadingState: React.FC<ChartLoadingStateProps> = ({ 
-  message, 
-  spinnerColor = 'border-blue-600 dark:border-blue-400' 
+export const ChartLoadingState: React.FC<ChartLoadingStateProps> = ({
+  message,
+  spinnerColor = 'border-blue-600 dark:border-blue-400'
 }) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
@@ -70,10 +70,10 @@ interface TimePeriodSelectorProps {
   focusColor?: string;
 }
 
-export const TimePeriodSelector: React.FC<TimePeriodSelectorProps> = ({ 
-  selectedPeriod, 
-  onPeriodChange, 
-  focusColor = 'focus:ring-blue-500 focus:border-blue-500' 
+export const TimePeriodSelector: React.FC<TimePeriodSelectorProps> = ({
+  selectedPeriod,
+  onPeriodChange,
+  focusColor = 'focus:ring-blue-500 focus:border-blue-500'
 }) => {
   return (
     <div className="flex-shrink-0">
@@ -97,9 +97,9 @@ interface ChartContainerProps {
   className?: string;
 }
 
-export const ChartContainer: React.FC<ChartContainerProps> = ({ 
-  children, 
-  className = "bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6" 
+export const ChartContainer: React.FC<ChartContainerProps> = ({
+  children,
+  className = "bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
 }) => {
   return (
     <div className={className}>

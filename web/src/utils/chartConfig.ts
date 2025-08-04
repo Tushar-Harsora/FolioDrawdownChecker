@@ -1,6 +1,6 @@
 export const CHART_COLORS = [
   '#3B82F6', // Blue
-  '#EF4444', // Red  
+  '#EF4444', // Red
   '#10B981', // Green
   '#F59E0B', // Yellow
   '#8B5CF6', // Purple

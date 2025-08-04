@@ -57,7 +57,7 @@ export default function ThemeToggle() {
         <div className="transform transition-transform duration-200 hover:scale-110">
           {getIcon()}
         </div>
-        
+
         {/* Theme indicator dot */}
         <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white dark:border-gray-800 transition-colors duration-200">
           <div className={`w-full h-full rounded-full ${

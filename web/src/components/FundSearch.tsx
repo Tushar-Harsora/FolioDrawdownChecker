@@ -15,7 +15,7 @@ export default function FundSearch({ onFundSelect, selectedFunds }: FundSearchPr
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [error, setError] = useState<string | null>(null);
-  
+
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -37,21 +37,21 @@ export default function FundSearch({ onFundSelect, selectedFunds }: FundSearchPr
   const searchFunds = async (searchQuery: string) => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch(`/api/v1/mutual-funds/search?q=${encodeURIComponent(searchQuery)}`);
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch funds');
       }
-      
+
       const data = await response.json();
-      
+
       // Filter out already selected funds
-      const availableFunds = data.funds.filter((fund: MutualFund) => 
+      const availableFunds = data.funds.filter((fund: MutualFund) =>
         !selectedFunds.some(selected => selected.schemeCode === fund.schemeCode)
       );
-      
+
       setFunds(availableFunds);
       setShowDropdown(availableFunds.length > 0);
       setSelectedIndex(-1);
@@ -135,7 +135,7 @@ export default function FundSearch({ onFundSelect, selectedFunds }: FundSearchPr
           placeholder="Search mutual funds (type at least 3 characters)..."
           className="w-full px-4 py-3 text-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:border-blue-500 dark:focus:border-blue-400 focus:outline-none transition-colors"
         />
-        
+
         {isLoading && (
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>

@@ -28,7 +28,7 @@ export async function GET(
 
     // Make API call to external service
     const apiUrl = `http://localhost:3000/api/v1/mutual-funds/${schemeCode}/historical-prices/range?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
-    
+
     const response = await fetch(apiUrl, {
       method: 'GET',
       headers: {
@@ -40,7 +40,7 @@ export async function GET(
 
     if (!response.ok) {
       console.error(`External API error: ${response.status} ${response.statusText}`);
-      
+
       // Return empty response for non-existent scheme codes or no data
       if (response.status === 404 || response.status === 204) {
         return NextResponse.json({
@@ -49,7 +49,7 @@ export async function GET(
           historicalPrices: []
         });
       }
-      
+
       throw new Error(`External API error: ${response.status} ${response.statusText}`);
     }
 
@@ -58,7 +58,7 @@ export async function GET(
     return NextResponse.json(apiData);
   } catch (error) {
     console.error('Historical prices API error:', error);
-    
+
     // Return appropriate error response
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
@@ -67,7 +67,7 @@ export async function GET(
           { status: 408 }
         );
       }
-      
+
       // For any other errors, return empty data as per requirements
       return NextResponse.json({
         fundId: await params.schemeCode,

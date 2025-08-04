@@ -11,9 +11,9 @@ interface PortfolioManagerProps {
   onInvestmentChange: (investment: InvestmentDetails | null) => void;
 }
 
-export default function PortfolioManager({ 
-  portfolioFunds, 
-  onUpdatePercentage, 
+export default function PortfolioManager({
+  portfolioFunds,
+  onUpdatePercentage,
   onRemoveFund,
   investment,
   onInvestmentChange
@@ -64,7 +64,7 @@ export default function PortfolioManager({
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
         Selected Funds ({portfolioFunds.length})
       </h3>
-      
+
       <div className="space-y-3">
         {portfolioFunds.map((portfolioFund) => (
           <div
@@ -83,7 +83,7 @@ export default function PortfolioManager({
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-2">
@@ -107,7 +107,7 @@ export default function PortfolioManager({
                         </span>
                       </div>
                     </div>
-                    
+
                     {/* Calculated Amount Display */}
                     {investment && investment.amount > 0 && portfolioFund.percentage > 0 && (
                       <div className="flex items-center space-x-2">
@@ -118,7 +118,7 @@ export default function PortfolioManager({
                       </div>
                     )}
                   </div>
-                  
+
                   <button
                     onClick={() => onRemoveFund(portfolioFund.fund.schemeCode)}
                     className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm font-medium px-3 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
@@ -132,7 +132,7 @@ export default function PortfolioManager({
           </div>
         ))}
       </div>
-      
+
       {/* Mobile-friendly table view for smaller screens */}
       <div className="md:hidden mt-6">
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">

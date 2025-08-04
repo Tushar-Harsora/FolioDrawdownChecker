@@ -8,10 +8,10 @@ interface InvestmentInputProps {
   totalPercentage: number;
 }
 
-export default function InvestmentInput({ 
-  investment, 
-  onInvestmentChange, 
-  totalPercentage 
+export default function InvestmentInput({
+  investment,
+  onInvestmentChange,
+  totalPercentage
 }: InvestmentInputProps) {
   const handleModeChange = (mode: InvestmentMode) => {
     const today = new Date().toISOString().split('T')[0];
@@ -47,7 +47,7 @@ export default function InvestmentInput({
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
         Investment Details
       </h3>
-      
+
       {/* Investment Mode Selection */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
